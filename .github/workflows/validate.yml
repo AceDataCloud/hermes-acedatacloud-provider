@@ -11,16 +11,12 @@ permissions:
 jobs:
   validate:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        hermes: ["v2026.9.24", "1d6b2786e2b2de70a967c66b6a14e2b83bab30e7"]
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - uses: NousResearch/hermes-agent/.github/actions/plugin-validate@1d6b2786e2b2de70a967c66b6a14e2b83bab30e7
         with:
           path: ${{ github.workspace }}
-          hermes-ref: ${{ matrix.hermes }}
+          hermes-ref: "1d6b2786e2b2de70a967c66b6a14e2b83bab30e7"
       - name: Run discovery and catalog behavior contracts
         shell: bash
         run: |
@@ -28,3 +24,20 @@ jobs:
           hermes_source=("$RUNNER_TEMP"/hermes-plugin-validator.*)
           export HERMES_SOURCE="${hermes_source[0]}"
           "$HERMES_SOURCE/.build/validator/bin/python" -m unittest discover -s tests -v
+      - name: Verify stable release with the prepared interpreter
+        shell: bash
+        run: |
+          set -euo pipefail
+          hermes_source=("$RUNNER_TEMP"/hermes-plugin-validator.*)
+          validator_python="${hermes_source[0]}/.build/validator/bin/python"
+          stable_source=$(mktemp -d "$RUNNER_TEMP/hermes-stable.XXXXXX")
+          git -C "$stable_source" init
+          git -C "$stable_source" remote add origin https://github.com/NousResearch/hermes-agent.git
+          git -C "$stable_source" fetch --depth=1 origin f97608f178d1ffeca59860195ab7da295f7c8e5f
+          git -C "$stable_source" checkout --detach FETCH_HEAD
+          export HERMES_SOURCE="$stable_source"
+          "$validator_python" -m unittest discover -s tests -v
+          export HERMES_HOME="$RUNNER_TEMP/hermes-stable-home"
+          export HERMES_RUNTIME_DIR="$RUNNER_TEMP/hermes-stable-runtime"
+          export PYTHONPATH="$stable_source"
+          "$validator_python" -m hermes_cli.main plugins validate "$GITHUB_WORKSPACE" --install-deps
