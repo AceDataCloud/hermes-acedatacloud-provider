@@ -1,0 +1,8 @@
+name: acedatacloud
+kind: model-provider
+version: "1.0.0"
+description: Ace Data Cloud GPT models with streaming and tool calling.
+author: Ace Data Cloud
+requires_hermes: ">=0.21.5"
+requires_env:
+  - ACEDATACLOUD_API_KEY
