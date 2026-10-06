@@ -24,8 +24,14 @@ jobs:
           hermes_source=("$RUNNER_TEMP"/hermes-plugin-validator.*)
           export HERMES_SOURCE="${hermes_source[0]}"
           "$HERMES_SOURCE/.build/validator/bin/python" -m unittest discover -s tests -v
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        id: stable-python
+        with:
+          python-version: "3.13"
       - name: Verify stable release with its own locked dependencies
         shell: bash
+        env:
+          STABLE_PYTHON: ${{ steps.stable-python.outputs.python-path }}
         run: |
           set -euo pipefail
           hermes_source=("$RUNNER_TEMP"/hermes-plugin-validator.*)
@@ -35,7 +41,7 @@ jobs:
           git -C "$stable_source" remote add origin https://github.com/NousResearch/hermes-agent.git
           git -C "$stable_source" fetch --depth=1 origin f97608f178d1ffeca59860195ab7da295f7c8e5f
           git -C "$stable_source" checkout --detach FETCH_HEAD
-          "$validator_python" -m pm.build_env --source "$stable_source" --out "$RUNNER_TEMP/hermes-stable-env"
+          "$validator_python" -m pm.build_env --source "$stable_source" --out "$RUNNER_TEMP/hermes-stable-env" --python "$STABLE_PYTHON"
           stable_python="$RUNNER_TEMP/hermes-stable-env/bin/python"
           export HERMES_SOURCE="$stable_source"
           "$stable_python" -m unittest discover -s tests -v
