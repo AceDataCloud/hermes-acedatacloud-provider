@@ -49,3 +49,11 @@ jobs:
           export HERMES_RUNTIME_DIR="$RUNNER_TEMP/hermes-stable-runtime"
           export PYTHONPATH="$stable_source"
           "$stable_python" -m hermes_cli.main plugins validate "$GITHUB_WORKSPACE" --install-deps
+      - name: Accept the published catalog on the stable release
+        if: github.event_name == 'workflow_dispatch'
+        shell: bash
+        run: |
+          set -euo pipefail
+          stable_source=("$RUNNER_TEMP"/hermes-stable.*)
+          export HERMES_SOURCE="${stable_source[0]}"
+          "$RUNNER_TEMP/hermes-stable-env/bin/python" scripts/check_published_catalog.py
