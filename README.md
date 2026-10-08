@@ -1,14 +1,17 @@
 # Ace Data Cloud model provider for Hermes Agent
 
+![Ace Data Cloud](assets/catalog.png)
+
 Maintained by [Ace Data Cloud](https://acedata.cloud). This plugin adds **Ace Data
 Cloud** to Hermes's model and setup pickers using its public Chat Completions API.
-It requires Hermes 0.21.5 or later. Official Hermes catalog review is pending;
-this plugin is not bundled with Hermes.
+It requires Hermes 0.21.5 or later and is listed in the
+[official Hermes plugin catalog](https://hermes-agent.nousresearch.com/docs/plugins/acedatacloud)
+as a community plugin. It is installed separately and is not bundled with Hermes.
 
 ## Install and configure
 
 ```sh
-hermes plugins install AceDataCloud/hermes-acedatacloud-provider --enable
+hermes plugins install acedatacloud --enable
 hermes model
 ```
 
